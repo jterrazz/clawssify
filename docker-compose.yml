@@ -1,0 +1,17 @@
+services:
+  clawssify:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./data:/data
+      # OAuth credentials are stored in data/.proxy/auth/ (managed by CLIProxyAPI)
+      # Run `pnpm setup` on the host first to complete OAuth login
+    environment:
+      - AI_PROVIDER=${AI_PROVIDER:-anthropic}
+      - AI_AUTH_METHOD=${AI_AUTH_METHOD:-api-key}
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-claude-sonnet-4-5-20250929}
+      - API_KEY=${API_KEY}
+      - DATA_DIR=/data
+    restart: unless-stopped
