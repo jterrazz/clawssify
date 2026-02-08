@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @clawssify/server dev",
+    "dev:site": "pnpm --filter @clawssify/site dev",
+    "dev:all": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "test": "vitest run",
     "test:watch": "vitest",
