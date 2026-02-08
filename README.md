@@ -9,36 +9,29 @@ Self-hosted. Open source. Your data stays on your machine.
 ```bash
 git clone https://github.com/jterrazz/clawssify.git
 cd clawssify
-cp .env.example .env
-# Edit .env with your AI provider credentials
 pnpm install
-pnpm dev
+pnpm dev          # Runs interactive setup, then starts the API server
+pnpm dev:site     # Starts the knowledge base UI at http://localhost:5173
 ```
+
+The setup wizard will guide you through choosing an AI provider and authentication method on first run.
 
 ## AI Provider Setup
 
-Clawssify supports 5 authentication methods:
+Clawssify supports multiple authentication methods:
 
 ### Use your existing subscription (free)
 
-**Claude Pro/Max:**
+The setup wizard can authenticate through your Claude Pro/Max or ChatGPT Plus subscription using OAuth — no API key needed.
+
 ```bash
-# Generate an OAuth token from your subscription
-claude setup-token
-# Copy the token into .env:
+# Anthropic (Claude Pro/Max)
 AI_PROVIDER=anthropic
 AI_AUTH_METHOD=oauth
-CLAUDE_OAUTH_TOKEN=<paste token>
-```
 
-**ChatGPT Plus/Pro:**
-```bash
-# Sign in with Codex CLI
-codex login
-# Token auto-read from ~/.codex/auth.json, or set manually:
+# OpenAI (ChatGPT Plus/Pro)
 AI_PROVIDER=openai
 AI_AUTH_METHOD=oauth
-OPENAI_OAUTH_TOKEN=<paste token>
 ```
 
 ### Use an API key (pay-per-token)
@@ -74,46 +67,31 @@ AI_MODEL=llama3
 curl -X POST http://localhost:3000/ingest \
   -H "Authorization: Bearer your-secret-api-key" \
   -H "Content-Type: application/json" \
-  -d '{
-    "type": "url",
-    "content": "https://example.com/article",
-    "impact": "standard"
-  }'
+  -d '{"type": "url", "content": "https://example.com/article"}'
 
 # Ingest a note
 curl -X POST http://localhost:3000/ingest \
   -H "Authorization: Bearer your-secret-api-key" \
   -H "Content-Type: application/json" \
-  -d '{
-    "type": "note",
-    "content": "TIL that k3s uses flannel for CNI by default...",
-    "impact": "auto"
-  }'
+  -d '{"type": "note", "content": "TIL that k3s uses flannel for CNI by default..."}'
 ```
-
-### Impact levels
-
-| Level | Behavior |
-|-------|----------|
-| `auto` | AI decides based on content complexity |
-| `bookmark` | Quick save — short summary post, no wiki changes |
-| `standard` | Full rewritten article + wiki page create/merge |
-| `deep` | Thorough analysis + detailed wiki updates |
 
 ### View your knowledge base
 
 ```bash
-pnpm --filter @clawssify/site dev
-# Opens VitePress at http://localhost:5173
+pnpm dev:site
+# Opens at http://localhost:5173
 ```
 
 ## Docker
 
 ```bash
-# Build and run
 docker compose up -d
+```
 
-# Or with docker run
+Or manually:
+
+```bash
 docker run -d \
   -p 3000:3000 \
   -v ./data:/data \
@@ -127,6 +105,11 @@ docker run -d \
 ## Architecture
 
 ```
+packages/
+  shared/          Shared types and utilities
+  server/          Fastify API — ingestion pipeline + agentic AI loop
+  site/            Next.js knowledge base UI
+
 data/
   .brain/          AI operating memory (preferences, structure, decisions)
   .sources/        Source tracking (provenance, raw analyses)
@@ -140,12 +123,12 @@ The AI processes content using an **agentic tool-use loop** — it can read, wri
 
 ## Tech Stack
 
-- **Runtime**: Node.js 22, TypeScript, ESM
+- **Runtime**: Node.js 22, TypeScript 5, ESM
 - **API**: Fastify 5
-- **AI**: Anthropic SDK + OpenAI SDK (agentic tool-use loop)
-- **Knowledge site**: VitePress
-- **Storage**: Markdown + JSON (no database)
-- **Deploy**: Docker
+- **AI**: Anthropic SDK + OpenAI SDK (agentic tool-use)
+- **Site**: Next.js 15, React 19, Tailwind CSS 4, shadcn/ui
+- **Storage**: Markdown + JSON files (no database, git-versioned)
+- **Deploy**: Docker (multi-stage, node:22-alpine)
 
 ## License
 
