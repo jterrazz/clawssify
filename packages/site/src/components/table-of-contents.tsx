@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 interface Heading {
   id: string
@@ -36,14 +36,16 @@ export function TableOfContents({ headings }: { headings: Heading[] }) {
 
   return (
     <div className="sticky top-16">
-      <p className="mb-3 text-sm font-medium">On this page</p>
-      <ul className="space-y-1 text-sm">
+      <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+        On this page
+      </p>
+      <ul className="space-y-0.5 text-[13px]">
         {headings.map((heading) => (
           <li key={heading.id} style={{ paddingLeft: `${(heading.level - 2) * 12}px` }}>
             <a
               href={`#${heading.id}`}
               className={cn(
-                'block py-1 text-muted-foreground hover:text-foreground transition-colors',
+                'block py-1 text-muted-foreground/70 hover:text-foreground transition-colors',
                 activeId === heading.id && 'text-foreground font-medium',
               )}
             >

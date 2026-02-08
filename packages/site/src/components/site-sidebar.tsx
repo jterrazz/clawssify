@@ -1,84 +1,39 @@
-import Link from 'next/link'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-} from '@/components/ui/sidebar'
-import { getSidebarTree, type SidebarItem } from '@/lib/content'
+import { SidebarNav } from '@/components/sidebar-nav'
+import { Separator } from '@/components/ui/separator'
+import { Sidebar, SidebarContent } from '@/components/ui/sidebar'
+import { getSidebarTree } from '@/lib/content'
+
+const sectionConfig = [
+  { key: 'wiki', label: 'Wiki', href: '/wiki' },
+  { key: 'posts', label: 'Posts', href: '/posts' },
+  { key: 'digest', label: 'Digest', href: '/digest' },
+]
 
 export async function SiteSidebar() {
-  const [wiki, posts, digest] = await Promise.all([
-    getSidebarTree('wiki'),
-    getSidebarTree('posts'),
-    getSidebarTree('digest'),
-  ])
+  const trees = await Promise.all(sectionConfig.map((s) => getSidebarTree(s.key)))
+
+  const sections = sectionConfig
+    .map((config, i) => ({
+      ...config,
+      items: trees[i],
+    }))
+    .filter((s) => s.items.length > 0)
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarSection title="Wiki" items={wiki} />
-        <SidebarSection title="Posts" items={posts} />
-        <SidebarSection title="Digest" items={digest} />
+    <Sidebar className="border-r border-border/40">
+      <SidebarContent className="px-1 pt-1">
+        {sections.map((section, i) => (
+          <div key={section.key}>
+            {i > 0 && <Separator className="mx-3" />}
+            <SidebarNav
+              label={section.label}
+              href={section.href}
+              sectionKey={section.key}
+              items={section.items}
+            />
+          </div>
+        ))}
       </SidebarContent>
     </Sidebar>
-  )
-}
-
-function SidebarSection({ title, items }: { title: string; items: SidebarItem[] }) {
-  if (items.length === 0) return null
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarNavItem key={item.title} item={item} />
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  )
-}
-
-function SidebarNavItem({ item }: { item: SidebarItem }) {
-  if (item.children) {
-    return (
-      <SidebarMenuItem>
-        <SidebarMenuButton>{item.title}</SidebarMenuButton>
-        <SidebarMenuSub>
-          {item.children.map((child) => (
-            <SidebarMenuSubItem key={child.title}>
-              {child.href ? (
-                <SidebarMenuSubButton asChild>
-                  <Link href={child.href}>{child.title}</Link>
-                </SidebarMenuSubButton>
-              ) : (
-                <SidebarMenuSubButton>{child.title}</SidebarMenuSubButton>
-              )}
-            </SidebarMenuSubItem>
-          ))}
-        </SidebarMenuSub>
-      </SidebarMenuItem>
-    )
-  }
-
-  return (
-    <SidebarMenuItem>
-      {item.href ? (
-        <SidebarMenuButton asChild>
-          <Link href={item.href}>{item.title}</Link>
-        </SidebarMenuButton>
-      ) : (
-        <SidebarMenuButton>{item.title}</SidebarMenuButton>
-      )}
-    </SidebarMenuItem>
   )
 }

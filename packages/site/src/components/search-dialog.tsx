@@ -1,8 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Search } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   CommandDialog,
   CommandEmpty,
@@ -11,8 +9,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import { Button } from '@/components/ui/button'
 import type { SearchDocument } from '@/lib/search'
+import { Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 
 export function SearchDialog() {
   const [open, setOpen] = useState(false)
@@ -54,12 +54,12 @@ export function SearchDialog() {
     <>
       <Button
         variant="outline"
-        className="relative h-8 w-full justify-start rounded-md text-sm text-muted-foreground sm:w-64"
+        className="relative h-8 w-full justify-start rounded-md border-border/60 text-[13px] text-muted-foreground sm:w-56"
         onClick={() => setOpen(true)}
       >
-        <Search className="mr-2 h-4 w-4" />
+        <Search className="mr-2 h-3.5 w-3.5" />
         Search...
-        <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+        <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border border-border/60 bg-muted px-1.5 font-mono text-[10px] font-medium sm:flex">
           <span className="text-xs">&#8984;</span>K
         </kbd>
       </Button>
@@ -70,16 +70,16 @@ export function SearchDialog() {
           onValueChange={setQuery}
         />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>
+            <span className="text-sm text-muted-foreground">No results found.</span>
+          </CommandEmpty>
           {filtered.length > 0 && (
             <CommandGroup heading="Results">
               {filtered.map((doc) => (
                 <CommandItem key={doc.slug} value={doc.slug} onSelect={onSelect}>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{doc.title}</span>
-                    <span className="text-xs text-muted-foreground capitalize">
-                      {doc.section}
-                    </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium">{doc.title}</span>
+                    <span className="text-xs text-muted-foreground capitalize">{doc.section}</span>
                   </div>
                 </CommandItem>
               ))}
@@ -95,10 +95,6 @@ function useFilteredDocuments(documents: SearchDocument[], query: string): Searc
   if (!query) return documents.slice(0, 10)
   const lower = query.toLowerCase()
   return documents
-    .filter(
-      (d) =>
-        d.title.toLowerCase().includes(lower) ||
-        d.excerpt.toLowerCase().includes(lower),
-    )
+    .filter((d) => d.title.toLowerCase().includes(lower) || d.excerpt.toLowerCase().includes(lower))
     .slice(0, 10)
 }

@@ -11,10 +11,8 @@ export interface SearchDocument {
 
 export function buildSearchIndex(files: ContentFile[]): SearchDocument[] {
   return files.map((file) => ({
-    title:
-      (file.frontmatter.title as string) ??
-      formatName(file.slug[file.slug.length - 1]),
-    slug: '/' + file.slug.join('/'),
+    title: (file.frontmatter.title as string) ?? formatName(file.slug[file.slug.length - 1]),
+    slug: `/${file.slug.join('/')}`,
     section: file.section,
     excerpt: file.content.slice(0, 200).replace(/[#*_\[\]]/g, ''),
   }))

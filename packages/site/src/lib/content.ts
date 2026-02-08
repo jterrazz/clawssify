@@ -3,8 +3,7 @@ import path from 'node:path'
 import matter from 'gray-matter'
 
 const KNOWLEDGE_DIR =
-  process.env.KNOWLEDGE_DIR ??
-  path.resolve(process.cwd(), '..', 'server', 'data', 'knowledge')
+  process.env.KNOWLEDGE_DIR ?? path.resolve(process.cwd(), '..', 'server', 'data', 'knowledge')
 
 export interface ContentFile {
   slug: string[]
@@ -21,7 +20,7 @@ export interface SidebarItem {
 }
 
 export async function getContentBySlug(slugParts: string[]): Promise<ContentFile | null> {
-  const filePath = path.join(KNOWLEDGE_DIR, ...slugParts) + '.md'
+  const filePath = `${path.join(KNOWLEDGE_DIR, ...slugParts)}.md`
   const file = await tryReadContent(filePath, slugParts)
   if (file) return file
 
@@ -49,10 +48,7 @@ export async function getAllContent(): Promise<ContentFile[]> {
   return all
 }
 
-async function tryReadContent(
-  filePath: string,
-  slugParts: string[],
-): Promise<ContentFile | null> {
+async function tryReadContent(filePath: string, slugParts: string[]): Promise<ContentFile | null> {
   try {
     const raw = await fs.readFile(filePath, 'utf-8')
     const { data, content } = matter(raw)
@@ -110,11 +106,11 @@ async function buildSidebarItems(dir: string, basePath: string): Promise<Sidebar
       if (entry.isDirectory()) {
         const children = await buildSidebarItems(fullPath, `${basePath}/${entry.name}`)
         if (children.length > 0) {
-          items.push({ title: formatName(entry.name), children })
+          items.push({ title: entry.name, children })
         }
       } else if (entry.name.endsWith('.md') && entry.name !== 'index.md') {
         const basename = entry.name.replace(/\.md$/, '')
-        items.push({ title: formatName(basename), href: `${basePath}/${basename}` })
+        items.push({ title: basename, href: `${basePath}/${basename}` })
       }
     }
   } catch {
