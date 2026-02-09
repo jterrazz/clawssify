@@ -10,45 +10,81 @@ Self-hosted. Open source. Your data stays on your machine.
 git clone https://github.com/jterrazz/clawssify.git
 cd clawssify
 pnpm install
-pnpm dev          # Runs interactive setup, then starts the API server
-pnpm dev:site     # Starts the knowledge base UI at http://localhost:5173
+pnpm dev
 ```
 
-The setup wizard will guide you through choosing an AI provider and authentication method on first run.
+That's it. On first run, the interactive CLI walks you through:
 
-## AI Provider Setup
+1. **Pick your AI provider** — Claude, OpenAI, or Gemini (arrow keys to select)
+2. **Pick a model** — each provider offers fast, balanced, and capable options
+3. **Sign in** — browser-based OAuth for Claude/OpenAI, or paste an API key for Gemini
 
-Clawssify supports multiple authentication methods:
+Once configured, the dev CLI starts both the API server and the knowledge base UI, and gives you an interactive prompt to ingest content directly.
 
-### Use your existing subscription (free)
+## Dev CLI
 
-The setup wizard can authenticate through your Claude Pro/Max or ChatGPT Plus subscription using OAuth — no API key needed.
+`pnpm dev` launches an interactive terminal with:
+
+- **Live logs** — server and proxy output, formatted and truncated to fit your terminal
+- **Inline ingestion** — paste a URL or type a note, hit Enter to ingest
+- **Progress tracking** — animated progress bar while AI classifies your content
+- **Queue status** — see what's processing, what's done, and what failed
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `https://...` | Ingest a URL |
+| `any text` | Ingest as a note |
+| `/help` | Show available commands |
+| `/logout` | Remove AI credentials |
+| `/quit` | Exit dev mode |
+
+## AI Providers
+
+### Claude (Anthropic)
+
+Use your existing Claude Pro/Max subscription (OAuth) or an API key.
 
 ```bash
-# Anthropic (Claude Pro/Max)
 AI_PROVIDER=anthropic
-AI_AUTH_METHOD=oauth
-
-# OpenAI (ChatGPT Plus/Pro)
-AI_PROVIDER=openai
-AI_AUTH_METHOD=oauth
+AI_AUTH_METHOD=oauth          # uses your subscription, no extra cost
+# or
+AI_AUTH_METHOD=api-key
+AI_API_KEY=sk-ant-...         # pay-per-token from console.anthropic.com
 ```
 
-### Use an API key (pay-per-token)
+Models: `claude-sonnet-4-5-20250929`, `claude-opus-4-6`, `claude-haiku-4-5-20251001`
+
+### OpenAI
+
+Use your ChatGPT Plus/Pro subscription (OAuth) or an API key.
 
 ```bash
-# Anthropic
-AI_PROVIDER=anthropic
-AI_AUTH_METHOD=api-key
-AI_API_KEY=sk-ant-...
-
-# OpenAI
 AI_PROVIDER=openai
+AI_AUTH_METHOD=oauth          # uses your subscription
+# or
 AI_AUTH_METHOD=api-key
-AI_API_KEY=sk-...
+AI_API_KEY=sk-...             # pay-per-token from platform.openai.com
 ```
 
-### Use a local model (Ollama, LM Studio, etc.)
+Models: `gpt-5.2`, `gpt-5-mini`, `gpt-5`
+
+### Gemini (Google)
+
+Use your Google account (OAuth) or an API key from [aistudio.google.com](https://aistudio.google.com).
+
+```bash
+AI_PROVIDER=gemini
+AI_AUTH_METHOD=oauth          # uses your Google account
+# or
+AI_AUTH_METHOD=api-key
+AI_API_KEY=...                # from aistudio.google.com
+```
+
+Models: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-3-flash-preview`
+
+### Local models (Ollama, LM Studio, etc.)
 
 ```bash
 AI_PROVIDER=openai
@@ -58,56 +94,25 @@ AI_BASE_URL=http://localhost:11434/v1
 AI_MODEL=llama3
 ```
 
-## Usage
+## API
 
-### Ingest content
+You can also ingest content programmatically:
 
 ```bash
-# Ingest a URL
 curl -X POST http://localhost:3000/ingest \
-  -H "Authorization: Bearer your-secret-api-key" \
+  -H "Authorization: Bearer <your-api-key>" \
   -H "Content-Type: application/json" \
   -d '{"type": "url", "content": "https://example.com/article"}'
-
-# Ingest a note
-curl -X POST http://localhost:3000/ingest \
-  -H "Authorization: Bearer your-secret-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{"type": "note", "content": "TIL that k3s uses flannel for CNI by default..."}'
 ```
 
-### View your knowledge base
-
-```bash
-pnpm dev:site
-# Opens at http://localhost:5173
-```
-
-## Docker
-
-```bash
-docker compose up -d
-```
-
-Or manually:
-
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -v ./data:/data \
-  -e AI_PROVIDER=anthropic \
-  -e AI_AUTH_METHOD=api-key \
-  -e AI_API_KEY=sk-ant-... \
-  -e API_KEY=your-secret \
-  clawssify
-```
+The API key is auto-generated on first setup and stored in `packages/server/.env`.
 
 ## Architecture
 
 ```
 packages/
   shared/          Shared types and utilities
-  server/          Fastify API — ingestion pipeline + agentic AI loop
+  server/          Fastify API + interactive dev CLI (ink)
   site/            Next.js knowledge base UI
 
 data/
@@ -123,12 +128,24 @@ The AI processes content using an **agentic tool-use loop** — it can read, wri
 
 ## Tech Stack
 
-- **Runtime**: Node.js 22, TypeScript 5, ESM
+- **Runtime**: Node.js 22, TypeScript 5, pnpm, ESM
 - **API**: Fastify 5
-- **AI**: Anthropic SDK + OpenAI SDK (agentic tool-use)
+- **AI**: Anthropic SDK, OpenAI SDK, Gemini (via OpenAI-compatible API)
+- **Dev CLI**: Ink (React for terminals)
+- **Auth**: CLIProxyAPI for OAuth (Claude/OpenAI subscriptions)
 - **Site**: Next.js 15, React 19, Tailwind CSS 4, shadcn/ui
 - **Storage**: Markdown + JSON files (no database, git-versioned)
 - **Deploy**: Docker (multi-stage, node:22-alpine)
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Interactive dev CLI (server + site + ingestion prompt) |
+| `pnpm dev:site` | Site only at http://localhost:5173 |
+| `pnpm build` | Build all packages |
+| `pnpm lint` | Lint with Biome |
+| `pnpm test` | Run tests |
 
 ## License
 

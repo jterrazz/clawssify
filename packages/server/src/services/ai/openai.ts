@@ -1,4 +1,3 @@
-import OpenAI from 'openai'
 import type {
   AIProvider,
   AppConfig,
@@ -7,8 +6,9 @@ import type {
   ToolDefinition,
   ToolResult,
 } from '@clawssify/shared'
-import { resolveAuth } from './auth.js'
+import OpenAI from 'openai'
 import { PROXY_BASE_URL } from '../proxy.js'
+import { resolveAuth } from './auth.js'
 
 const MAX_ITERATIONS = 25
 
@@ -29,7 +29,7 @@ export class OpenAIProvider implements AIProvider {
     const client = new OpenAI({
       apiKey: auth.token,
       ...(auth.type === 'oauth'
-        ? { baseURL: PROXY_BASE_URL }
+        ? { baseURL: `${PROXY_BASE_URL}/v1` }
         : this.config.baseUrl
           ? { baseURL: this.config.baseUrl }
           : {}),

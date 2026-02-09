@@ -1,8 +1,8 @@
-import { z } from 'zod'
 import type { AppConfig } from '@clawssify/shared'
+import { z } from 'zod'
 
 const envSchema = z.object({
-  AI_PROVIDER: z.enum(['anthropic', 'openai']).default('anthropic'),
+  AI_PROVIDER: z.enum(['anthropic', 'openai', 'gemini']).default('anthropic'),
   AI_AUTH_METHOD: z.enum(['api-key', 'oauth']).default('api-key'),
   AI_API_KEY: z.string().optional(),
   AI_BASE_URL: z.string().optional(),
