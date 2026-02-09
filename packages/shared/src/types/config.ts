@@ -1,4 +1,4 @@
-export type AIProviderType = 'anthropic' | 'openai'
+export type AIProviderType = 'anthropic' | 'openai' | 'gemini'
 export type AIAuthMethod = 'api-key' | 'oauth'
 
 export interface AppConfig {

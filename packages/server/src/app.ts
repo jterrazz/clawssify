@@ -17,8 +17,18 @@ declare module 'fastify' {
   }
 }
 
-export async function buildApp(config: AppConfig) {
-  const app = Fastify({ logger: true })
+export async function buildApp(
+  config: AppConfig,
+  options?: {
+    loggerDestination?: import('node:stream').Writable
+    onProxyLog?: (line: string) => void
+  },
+) {
+  const app = Fastify({
+    logger: options?.loggerDestination
+      ? { level: 'info', stream: options.loggerDestination }
+      : true,
+  })
 
   await app.register(cors)
 
@@ -29,7 +39,7 @@ export async function buildApp(config: AppConfig) {
   let proxyProc: ChildProcess | undefined
   if (config.ai.authMethod === 'oauth') {
     await ensureProxyBinary(config.dataDir)
-    proxyProc = await startProxy(config.dataDir)
+    proxyProc = await startProxy(config.dataDir, { onLog: options?.onProxyLog })
     app.log.info('OAuth proxy started on port 8317')
   }
 

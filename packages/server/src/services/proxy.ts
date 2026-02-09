@@ -1,8 +1,8 @@
-import { execSync, spawn, type ChildProcess } from 'node:child_process'
+import { type ChildProcess, execSync, spawn } from 'node:child_process'
+import { createWriteStream } from 'node:fs'
 import { chmod, mkdir, stat, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { pipeline } from 'node:stream/promises'
-import { createWriteStream } from 'node:fs'
 
 const PROXY_PORT = 8317
 const PROXY_REPO = 'router-for-me/CLIProxyAPI'
@@ -51,9 +51,9 @@ async function ensureConfig(dataDir: string): Promise<void> {
     `port: ${PROXY_PORT}`,
     `host: "127.0.0.1"`,
     `auth-dir: "${authDir}"`,
-    `api-keys:`,
+    'api-keys:',
     `  - "proxy"`,
-    `debug: false`,
+    'debug: false',
     '',
   ].join('\n')
   await writeFile(configPath, config, 'utf-8')
@@ -73,9 +73,7 @@ export async function ensureProxyBinary(dataDir: string): Promise<void> {
   }
 
   // Get latest release version
-  const releaseRes = await fetch(
-    `https://api.github.com/repos/${PROXY_REPO}/releases/latest`,
-  )
+  const releaseRes = await fetch(`https://api.github.com/repos/${PROXY_REPO}/releases/latest`)
   if (!releaseRes.ok) {
     throw new Error(`Failed to fetch latest release: ${releaseRes.status}`)
   }
@@ -105,10 +103,7 @@ export async function ensureProxyBinary(dataDir: string): Promise<void> {
 /**
  * Run CLIProxyAPI login flow (opens browser for OAuth).
  */
-export async function loginProxy(
-  provider: 'claude' | 'codex',
-  dataDir: string,
-): Promise<void> {
+export async function loginProxy(provider: 'claude' | 'codex', dataDir: string): Promise<void> {
   const binaryPath = getBinaryPath(dataDir)
   const configPath = getConfigPath(dataDir)
 
@@ -129,9 +124,13 @@ export async function loginProxy(
  * Start CLIProxyAPI as a background subprocess.
  * Returns the child process handle (call stopProxy to shut down).
  */
-export async function startProxy(dataDir: string): Promise<ChildProcess> {
+export async function startProxy(
+  dataDir: string,
+  options?: { onLog?: (line: string) => void },
+): Promise<ChildProcess> {
   const binaryPath = getBinaryPath(dataDir)
   const configPath = getConfigPath(dataDir)
+  const log = options?.onLog ?? ((msg: string) => console.log(msg))
 
   const proc = spawn(binaryPath, ['-config', configPath], {
     stdio: 'pipe',
@@ -139,18 +138,22 @@ export async function startProxy(dataDir: string): Promise<ChildProcess> {
   })
 
   proc.stdout?.on('data', (data: Buffer) => {
-    const msg = data.toString().trim()
-    if (msg) console.log(`[proxy] ${msg}`)
+    for (const line of data.toString().split('\n')) {
+      const msg = line.trim()
+      if (msg) log(`[proxy] ${msg}`)
+    }
   })
 
   proc.stderr?.on('data', (data: Buffer) => {
-    const msg = data.toString().trim()
-    if (msg) console.error(`[proxy] ${msg}`)
+    for (const line of data.toString().split('\n')) {
+      const msg = line.trim()
+      if (msg) log(`[proxy] ${msg}`)
+    }
   })
 
   proc.on('exit', (code) => {
     if (code !== null && code !== 0) {
-      console.error(`[proxy] CLIProxyAPI exited with code ${code}`)
+      log(`[proxy] CLIProxyAPI exited with code ${code}`)
     }
   })
 
