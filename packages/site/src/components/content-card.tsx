@@ -1,33 +1,33 @@
-import { Badge } from '@/components/ui/badge'
-import type { ContentFile } from '@/lib/content'
-import { formatName } from '@/lib/content'
-import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+import { Badge } from "@/components/ui/badge";
+import { type ContentFile, formatName } from "@/lib/content-types";
 
 export function ContentCard({ file }: { file: ContentFile }) {
-  const title = (file.frontmatter.title as string) ?? formatName(file.slug[file.slug.length - 1])
-  const href = `/${file.slug.join('/')}`
+  const title = (file.frontmatter.title as string) ?? formatName(file.slug[file.slug.length - 1]);
+  const href = `/${file.slug.join("/")}`;
   const date = file.frontmatter.date
-    ? new Date(file.frontmatter.date as string).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+    ? new Date(file.frontmatter.date as string).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       })
-    : file.lastModified.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-  const concepts = (file.frontmatter.concepts as string[]) ?? []
+    : file.lastModified.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+  const concepts = (file.frontmatter.concepts as string[]) ?? [];
   const excerpt = file.content
-    .replace(/^---[\s\S]*?---/, '')
+    .replace(/^---[\s\S]*?---/, "")
     .slice(0, 160)
-    .replace(/[#*_\[\]`]/g, '')
-    .replace(/\n+/g, ' ')
-    .trim()
+    .replace(/[#*_[\]`]/g, "")
+    .replace(/\n+/g, " ")
+    .trim();
 
   return (
-    <Link href={href} className="group block">
+    <Link className="group block" href={href}>
       <div className="flex items-start gap-4 rounded-lg border border-border/60 px-5 py-4 transition-colors hover:bg-muted/50">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -45,9 +45,9 @@ export function ContentCard({ file }: { file: ContentFile }) {
                 <span className="text-muted-foreground/30">&middot;</span>
                 {concepts.slice(0, 3).map((c) => (
                   <Badge
+                    className="text-[11px] font-normal px-1.5 py-0"
                     key={c}
                     variant="secondary"
-                    className="text-[11px] font-normal px-1.5 py-0"
                   >
                     {c}
                   </Badge>
@@ -59,5 +59,5 @@ export function ContentCard({ file }: { file: ContentFile }) {
         <ArrowRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors shrink-0 mt-1" />
       </div>
     </Link>
-  )
+  );
 }

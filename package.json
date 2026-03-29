@@ -3,20 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @clawssify/server dev",
     "dev:site": "pnpm --filter @clawssify/site dev",
-    "dev:all": "pnpm -r --parallel dev",
+    "dev:app": "cd packages/app && pnpm tauri dev",
     "build": "pnpm -r build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write ."
+    "build:app": "cd packages/app && pnpm tauri build",
+    "test": "vitest --run",
+    "lint": "codestyle check",
+    "lint:fix": "codestyle fix"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.0",
+    "@jterrazz/codestyle": "^2.1.0",
+    "@jterrazz/test": "5.0.0",
+    "@jterrazz/typescript": "5.2.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.2"
   },
   "engines": {
     "node": ">=22",

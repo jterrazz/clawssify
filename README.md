@@ -32,13 +32,13 @@ Once configured, the dev CLI starts both the API server and the knowledge base U
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `https://...` | Ingest a URL |
-| `any text` | Ingest as a note |
-| `/help` | Show available commands |
-| `/logout` | Remove AI credentials |
-| `/quit` | Exit dev mode |
+| Command       | Description             |
+| ------------- | ----------------------- |
+| `https://...` | Ingest a URL            |
+| `any text`    | Ingest as a note        |
+| `/help`       | Show available commands |
+| `/logout`     | Remove AI credentials   |
+| `/quit`       | Exit dev mode           |
 
 ## AI Providers
 
@@ -139,13 +139,13 @@ The AI processes content using an **agentic tool-use loop** — it can read, wri
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm dev` | Interactive dev CLI (server + site + ingestion prompt) |
-| `pnpm dev:site` | Site only at http://localhost:5173 |
-| `pnpm build` | Build all packages |
-| `pnpm lint` | Lint with Biome |
-| `pnpm test` | Run tests |
+| Script          | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| `pnpm dev`      | Interactive dev CLI (server + site + ingestion prompt) |
+| `pnpm dev:site` | Site only at http://localhost:5173                     |
+| `pnpm build`    | Build all packages                                     |
+| `pnpm lint`     | Lint with Biome                                        |
+| `pnpm test`     | Run tests                                              |
 
 ## License
 

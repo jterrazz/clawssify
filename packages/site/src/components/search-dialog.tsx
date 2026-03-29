@@ -1,6 +1,10 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
+import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,54 +12,59 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import type { SearchDocument } from '@/lib/search'
-import { Search } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+} from "@/components/ui/command";
+import { getAllContentClient } from "@/lib/content-client";
+import { buildSearchIndex, type SearchDocument } from "@/lib/search";
+import { isTauri } from "@/lib/tauri";
 
 export function SearchDialog() {
-  const [open, setOpen] = useState(false)
-  const [documents, setDocuments] = useState<SearchDocument[]>([])
-  const [query, setQuery] = useState('')
-  const router = useRouter()
+  const [open, setOpen] = useState(false);
+  const [documents, setDocuments] = useState<SearchDocument[]>([]);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpen((o) => !o)
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((o) => !o);
       }
-    }
-    document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
-  }, [])
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   useEffect(() => {
     if (open && documents.length === 0) {
-      fetch('/api/search')
-        .then((r) => r.json())
-        .then(setDocuments)
-        .catch(() => {})
+      if (isTauri) {
+        getAllContentClient()
+          .then((files) => setDocuments(buildSearchIndex(files)))
+          .catch(() => {});
+      } else {
+        fetch("/api/search")
+          .then((r) => r.json())
+          .then(setDocuments)
+          .catch(() => {});
+      }
     }
-  }, [open, documents.length])
+  }, [open, documents.length]);
 
-  const filtered = useFilteredDocuments(documents, query)
+  const filtered = useFilteredDocuments(documents, query);
 
   const onSelect = useCallback(
     (slug: string) => {
-      setOpen(false)
-      router.push(slug)
+      setOpen(false);
+      router.push(slug);
     },
     [router],
-  )
+  );
 
   return (
     <>
       <Button
-        variant="outline"
         className="relative h-8 w-full justify-start rounded-md border-border/60 text-[13px] text-muted-foreground sm:w-56"
         onClick={() => setOpen(true)}
+        variant="outline"
       >
         <Search className="mr-2 h-3.5 w-3.5" />
         Search...
@@ -63,11 +72,11 @@ export function SearchDialog() {
           <span className="text-xs">&#8984;</span>K
         </kbd>
       </Button>
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog onOpenChange={setOpen} open={open}>
         <CommandInput
+          onValueChange={setQuery}
           placeholder="Search knowledge base..."
           value={query}
-          onValueChange={setQuery}
         />
         <CommandList>
           <CommandEmpty>
@@ -76,7 +85,7 @@ export function SearchDialog() {
           {filtered.length > 0 && (
             <CommandGroup heading="Results">
               {filtered.map((doc) => (
-                <CommandItem key={doc.slug} value={doc.slug} onSelect={onSelect}>
+                <CommandItem key={doc.slug} onSelect={onSelect} value={doc.slug}>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-medium">{doc.title}</span>
                     <span className="text-xs text-muted-foreground capitalize">{doc.section}</span>
@@ -88,13 +97,15 @@ export function SearchDialog() {
         </CommandList>
       </CommandDialog>
     </>
-  )
+  );
 }
 
 function useFilteredDocuments(documents: SearchDocument[], query: string): SearchDocument[] {
-  if (!query) return documents.slice(0, 10)
-  const lower = query.toLowerCase()
+  if (!query) {
+    return documents.slice(0, 10);
+  }
+  const lower = query.toLowerCase();
   return documents
     .filter((d) => d.title.toLowerCase().includes(lower) || d.excerpt.toLowerCase().includes(lower))
-    .slice(0, 10)
+    .slice(0, 10);
 }

@@ -1,41 +1,48 @@
-import { Card } from '@/components/ui/card'
-import { getContentList } from '@/lib/content'
-import { ArrowRight, BookOpen, CalendarDays, FileText } from 'lucide-react'
-import Link from 'next/link'
+"use client";
 
-export const dynamic = 'force-dynamic'
+import { ArrowRight, BookOpen, CalendarDays, FileText } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { Card } from "@/components/ui/card";
+import { getContentListClient } from "@/lib/content-client";
 
 const sections = [
   {
-    title: 'Wiki',
-    href: '/wiki',
-    description: 'Evergreen topic pages that evolve over time as new knowledge is ingested.',
+    title: "Wiki",
+    href: "/wiki",
+    description: "Evergreen topic pages that evolve over time as new knowledge is ingested.",
     icon: BookOpen,
-    key: 'wiki',
+    key: "wiki",
   },
   {
-    title: 'Posts',
-    href: '/posts',
-    description: 'Articles synthesized from ingested sources, organized by topic.',
+    title: "Posts",
+    href: "/posts",
+    description: "Articles synthesized from ingested sources, organized by topic.",
     icon: FileText,
-    key: 'posts',
+    key: "posts",
   },
   {
-    title: 'Digest',
-    href: '/digest',
-    description: 'Daily changelog tracking what changed across the knowledge base.',
+    title: "Digest",
+    href: "/digest",
+    description: "Daily changelog tracking what changed across the knowledge base.",
     icon: CalendarDays,
-    key: 'digest',
+    key: "digest",
   },
-]
+];
 
-export default async function HomePage() {
-  const counts = await Promise.all(
-    sections.map(async (s) => {
-      const files = await getContentList(s.key)
-      return files.length
-    }),
-  )
+export default function HomePage() {
+  const [counts, setCounts] = useState<number[]>([0, 0, 0]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    Promise.all(sections.map((s) => getContentListClient(s.key)))
+      .then((results) => {
+        setCounts(results.map((r) => r.length));
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
 
   return (
     <div className="px-8 py-16 max-w-3xl mx-auto">
@@ -54,7 +61,7 @@ export default async function HomePage() {
 
       <div className="grid gap-3">
         {sections.map((section, i) => (
-          <Link key={section.key} href={section.href} className="group">
+          <Link className="group" href={section.href} key={section.key}>
             <Card className="flex items-center gap-5 px-5 py-4 transition-colors hover:bg-muted/50 border-border/60">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
                 <section.icon className="h-5 w-5 text-muted-foreground" />
@@ -62,9 +69,11 @@ export default async function HomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <h2 className="text-sm font-medium text-foreground">{section.title}</h2>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {counts[i]} {counts[i] === 1 ? 'page' : 'pages'}
-                  </span>
+                  {loaded && (
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {counts[i]} {counts[i] === 1 ? "page" : "pages"}
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground leading-snug">{section.description}</p>
               </div>
@@ -74,5 +83,5 @@ export default async function HomePage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

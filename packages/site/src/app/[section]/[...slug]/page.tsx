@@ -1,39 +1,70 @@
-import { TableOfContents } from '@/components/table-of-contents'
-import { getContentBySlug } from '@/lib/content'
-import { formatName } from '@/lib/content'
-import { extractHeadings, renderMarkdown } from '@/lib/mdx'
-import { ChevronRight } from 'lucide-react'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
+"use client";
 
-export const dynamic = 'force-dynamic'
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { notFound, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function ContentPage({
-  params,
-}: {
-  params: Promise<{ section: string; slug: string[] }>
-}) {
-  const { section, slug } = await params
-  const file = await getContentBySlug([section, ...slug])
-  if (!file) notFound()
+import { TableOfContents } from "@/components/table-of-contents";
+import { getContentBySlugClient } from "@/lib/content-client";
+import { formatName } from "@/lib/content-types";
+import { extractHeadings, renderMarkdown } from "@/lib/mdx";
 
-  const { content } = await renderMarkdown(file.content)
-  const headings = extractHeadings(file.content)
-  const title = (file.frontmatter.title as string) ?? formatName(slug[slug.length - 1])
+export default function ContentPage() {
+  const params = useParams<{ section: string; slug: string[] }>();
+  const { section, slug } = params;
+  const [renderedContent, setRenderedContent] = useState<null | React.ReactNode>(null);
+  const [headings, setHeadings] = useState<{ id: string; text: string; level: number }[]>([]);
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState<null | string>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [found, setFound] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const file = await getContentBySlugClient([section, ...slug]);
+
+      if (!file) {
+        setFound(false);
+        setLoaded(true);
+        return;
+      }
+
+      setTitle((file.frontmatter.title as string) ?? formatName(slug[slug.length - 1]));
+      setDate(typeof file.frontmatter.date === "string" ? file.frontmatter.date : null);
+      setHeadings(extractHeadings(file.content));
+
+      const { content } = await renderMarkdown(file.content);
+      setRenderedContent(content);
+      setLoaded(true);
+    }
+    load();
+  }, [section, slug]);
+
+  if (loaded && !found) {
+    notFound();
+  }
+  if (!loaded || !renderedContent) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex gap-12 px-8 py-10 max-w-5xl mx-auto">
       <article className="flex-1 min-w-0">
         <nav className="flex items-center gap-1 text-[13px] text-muted-foreground mb-6">
-          <Link href={`/${section}`} className="hover:text-foreground transition-colors capitalize">
+          <Link className="hover:text-foreground transition-colors capitalize" href={`/${section}`}>
             {section}
           </Link>
           {slug.slice(0, -1).map((part, i) => (
-            <span key={part} className="flex items-center gap-1">
+            <span className="flex items-center gap-1" key={part}>
               <ChevronRight className="h-3 w-3" />
               <Link
-                href={`/${section}/${slug.slice(0, i + 1).join('/')}`}
                 className="hover:text-foreground transition-colors"
+                href={`/${section}/${slug.slice(0, i + 1).join("/")}`}
               >
                 {formatName(part)}
               </Link>
@@ -42,18 +73,18 @@ export default async function ContentPage({
         </nav>
 
         <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">{title}</h1>
-        {typeof file.frontmatter.date === 'string' && (
+        {date && (
           <p className="text-[13px] text-muted-foreground mb-8">
-            {new Date(file.frontmatter.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date(date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         )}
-        {typeof file.frontmatter.date !== 'string' && <div className="mb-8" />}
+        {!date && <div className="mb-8" />}
 
-        <div>{content}</div>
+        <div>{renderedContent}</div>
       </article>
       {headings.length > 2 && (
         <aside className="hidden xl:block w-48 shrink-0">
@@ -61,5 +92,5 @@ export default async function ContentPage({
         </aside>
       )}
     </div>
-  )
+  );
 }

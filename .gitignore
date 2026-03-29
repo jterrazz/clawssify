@@ -7,3 +7,18 @@ data/
 *.log
 .DS_Store
 .context/
+
+# Rust
+target/
+*.rs.bk
+
+# Xcode / Apple
+*.xcuserdata
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.moved-aside
+build/

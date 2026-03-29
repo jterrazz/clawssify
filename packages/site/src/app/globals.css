@@ -45,6 +45,24 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Tauri: make background transparent for native vibrancy */
+  .tauri body,
+  .tauri {
+    background: transparent !important;
+  }
+  /* Tauri: draggable titlebar region */
+  .tauri-drag-region {
+    -webkit-app-region: drag;
+  }
+  .tauri-drag-region button,
+  .tauri-drag-region a,
+  .tauri-drag-region input {
+    -webkit-app-region: no-drag;
+  }
+  /* Tauri: offset content for overlay titlebar */
+  .tauri-titlebar-offset {
+    padding-top: 28px;
+  }
 }
 
 :root {

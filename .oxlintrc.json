@@ -1,0 +1,11 @@
+{
+  "extends": ["node_modules/@jterrazz/codestyle/presets/oxlint/node.json"],
+  "rules": {
+    "import/exports-last": "off",
+    "import/no-namespace": "off",
+    "oxc/no-map-spread": "off",
+    "typescript/parameter-properties": "off",
+    "typescript/triple-slash-reference": "off",
+    "unicorn/prefer-global-this": "off"
+  }
+}

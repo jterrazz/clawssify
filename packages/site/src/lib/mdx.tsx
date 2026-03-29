@@ -1,8 +1,9 @@
-import { mdxComponents } from '@/components/mdx-components'
-import { compileMDX } from 'next-mdx-remote/rsc'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeSlug from 'rehype-slug'
-import remarkGfm from 'remark-gfm'
+import { compileMDX } from "next-mdx-remote/rsc";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+
+import { mdxComponents } from "@/components/mdx-components";
 
 export async function renderMarkdown(source: string) {
   const { content, frontmatter } = await compileMDX({
@@ -10,27 +11,27 @@ export async function renderMarkdown(source: string) {
     options: {
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'wrap' }]],
+        rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
       },
       parseFrontmatter: true,
     },
     components: mdxComponents,
-  })
-  return { content, frontmatter }
+  });
+  return { content, frontmatter };
 }
 
 export function extractHeadings(markdown: string): { id: string; text: string; level: number }[] {
-  const headingRegex = /^(#{2,4})\s+(.+)$/gm
-  const headings: { id: string; text: string; level: number }[] = []
-  let match: RegExpExecArray | null = headingRegex.exec(markdown)
+  const headingRegex = /^(#{2,4})\s+(.+)$/gm;
+  const headings: { id: string; text: string; level: number }[] = [];
+  let match: null | RegExpExecArray = headingRegex.exec(markdown);
   while (match !== null) {
-    const text = match[2].trim()
+    const text = match[2].trim();
     const id = text
       .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-    headings.push({ id, text, level: match[1].length })
-    match = headingRegex.exec(markdown)
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
+    headings.push({ id, text, level: match[1].length });
+    match = headingRegex.exec(markdown);
   }
-  return headings
+  return headings;
 }

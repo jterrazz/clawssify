@@ -1,4 +1,4 @@
-import type { MDXComponents } from 'mdx/types'
+import type { MDXComponents } from "mdx/types";
 
 export const mdxComponents: MDXComponents = {
   h1: ({ children, ...props }) => (
@@ -105,4 +105,4 @@ export const mdxComponents: MDXComponents = {
     </td>
   ),
   hr: () => <hr className="my-8 border-border/50" />,
-}
+};
