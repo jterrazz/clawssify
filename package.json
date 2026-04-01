@@ -12,7 +12,7 @@
     "lint:fix": "codestyle fix"
   },
   "devDependencies": {
-    "@jterrazz/codestyle": "^2.1.0",
+    "@jterrazz/codestyle": "^2.2.0",
     "@jterrazz/test": "5.0.0",
     "@jterrazz/typescript": "5.2.0",
     "typescript": "^5.7.0",
