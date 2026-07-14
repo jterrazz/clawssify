@@ -1,6 +1,6 @@
 {
-  "extends": "@jterrazz/typescript/presets/tsconfig/node",
-  "compilerOptions": {
-    "skipLibCheck": true
-  }
+    "extends": "@jterrazz/typescript/presets/tsconfig/node",
+    "compilerOptions": {
+        "skipLibCheck": true
+    }
 }

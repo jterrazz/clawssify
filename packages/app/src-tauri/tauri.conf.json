@@ -1,33 +1,33 @@
 {
-  "productName": "Clawssify",
-  "identifier": "com.clawssify.app",
-  "version": "0.1.0",
-  "build": {
-    "beforeDevCommand": "cd ../site && pnpm dev",
-    "beforeBuildCommand": "cd ../site && pnpm build:tauri",
-    "frontendDist": "../site/out",
-    "devUrl": "http://localhost:5173"
-  },
-  "app": {
-    "macOSPrivateApi": true,
-    "windows": [
-      {
-        "title": "Clawssify",
-        "width": 1200,
-        "height": 800,
-        "titleBarStyle": "Overlay",
-        "hiddenTitle": true,
-        "decorations": true,
-        "transparent": true
-      }
-    ],
-    "security": {
-      "csp": null
+    "productName": "Clawssify",
+    "identifier": "com.clawssify.app",
+    "version": "0.1.0",
+    "build": {
+        "beforeDevCommand": "cd ../site && pnpm dev",
+        "beforeBuildCommand": "cd ../site && pnpm build:tauri",
+        "frontendDist": "../site/out",
+        "devUrl": "http://localhost:5173"
+    },
+    "app": {
+        "macOSPrivateApi": true,
+        "windows": [
+            {
+                "title": "Clawssify",
+                "width": 1200,
+                "height": 800,
+                "titleBarStyle": "Overlay",
+                "hiddenTitle": true,
+                "decorations": true,
+                "transparent": true
+            }
+        ],
+        "security": {
+            "csp": null
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": []
     }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": []
-  }
 }
