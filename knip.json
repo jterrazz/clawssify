@@ -1,12 +1,6 @@
 {
     "$schema": "https://unpkg.com/knip@6/schema.json",
-    "ignoreDependencies": [
-        "@jterrazz/test",
-        "@tauri-apps/api",
-        "postcss",
-        "rehype-pretty-code",
-        "shiki"
-    ],
+    "ignoreDependencies": ["@tauri-apps/api", "postcss", "rehype-pretty-code", "shiki"],
     "vitest": {
         "config": []
     },
