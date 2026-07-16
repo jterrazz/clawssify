@@ -12,7 +12,8 @@
         "lint:fix": "typescript fix"
     },
     "devDependencies": {
-        "@jterrazz/typescript": "^6.0.4",
+        "@jterrazz/typescript": "^6.1.0",
+        "@types/node": "^22.19.10",
         "oxfmt": "^0.59.0",
         "oxlint": "^1.74.0",
         "typescript": "^5.7.0",
